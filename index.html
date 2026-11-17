@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>人生旅行清单 - 5年梦想规划</title>
+  <meta name="description" content="人生旅行清单：12 个梦想目的地、5 年出行时间线与预算规划。">
+  <meta name="theme-color" content="#0a0a0f">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230a0a0f'/%3E%3Ccircle cx='32' cy='32' r='21' fill='none' stroke='%2322d3ee' stroke-width='3'/%3E%3Cpath d='M11 32h42M32 11c8 8 8 34 0 42M32 11c-8 8-8 34 0 42' fill='none' stroke='%23a78bfa' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'bg-primary': '#0a0a0f',
+            'bg-secondary': '#13131a',
+            'bg-card': '#1a1a24',
+            'bg-card-hover': '#22222e',
+            'text-primary': '#f0f0f5',
+            'text-secondary': '#8a8a9a',
+            'text-muted': '#5a5a6a',
+            'accent-cyan': '#22d3ee',
+            'accent-purple': '#a78bfa',
+            'accent-pink': '#f472b6',
+            'accent-orange': '#fb923c',
+            'accent-green': '#34d399',
+            'border': '#2a2a35',
+            'border-light': '#3a3a4a',
+          },
+          fontFamily: {
+            sans: ['Inter', 'Noto Sans SC', 'system-ui', 'sans-serif'],
+            display: ['Playfair Display', 'Georgia', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: #0a0a0f;
+      color: #f0f0f5;
+      font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0a0a0f; }
+    ::-webkit-scrollbar-thumb { background: #3a3a4a; border-radius: 3px; }
+    ::selection { background-color: rgba(167, 139, 250, 0.3); color: #f0f0f5; }
+    .gradient-text {
+      background: linear-gradient(135deg, #22d3ee, #a78bfa, #f472b6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .glass {
+      background: rgba(26, 26, 36, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    .glow-cyan { box-shadow: 0 0 20px rgba(34, 211, 238, 0.15), 0 0 60px rgba(34, 211, 238, 0.05); }
+    .glow-purple { box-shadow: 0 0 20px rgba(167, 139, 250, 0.15), 0 0 60px rgba(167, 139, 250, 0.05); }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); opacity: 0.2; }
+      50% { transform: translateY(-30px); opacity: 0.5; }
+    }
+    .float-anim { animation: float 5s ease-in-out infinite; }
+    .reveal { opacity: 0; transform: translateY(40px); transition: all 0.7s ease-out; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-left { opacity: 0; transform: translateX(-40px); transition: all 0.6s ease-out; }
+    .reveal-left.visible { transform: translateX(0); }
+    .reveal-right { opacity: 0; transform: translateX(40px); transition: all 0.6s ease-out; }
+    .reveal-right.visible { transform: translateX(0); }
+    .reveal-scale { opacity: 0; transform: scale(0.9); transition: all 0.7s ease-out; }
+    .reveal-scale.visible { opacity: 1; transform: scale(1); }
+    .bar-grow { width: 0; transition: width 1s ease-out; }
+    .bar-grow.visible { width: var(--bar-width); }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script src="./assets/travel-images.js"></script>
+
+  <script type="text/babel" data-type="module">
+    const { useState, useEffect, useRef } = React;
+
+    // ========== DATA ==========
+    const destinations = [
+      {
+        id: 'seoul-snow', name: '首尔的雪夜', country: '韩国', tagline: '霓虹灯下的白雪童话',
+        description: '在雪夜中漫步北村韩屋村，感受传统韩屋被白雪覆盖的静谧之美；在景福宫穿韩服拍照，体验韩国传统文化；在明洞和弘大享受购物与街头美食。',
+        imageUrl: TRAVEL_IMAGES[0],
+        bestMonths: '12月-2月',
+        bestMonthsReason: '首尔冬季气温在-5°C至5°C之间，雪景覆盖的景福宫、北村韩屋村和明洞街区呈现出浪漫的冬日氛围。1月通常最冷且游客较少，酒店价格相对便宜。',
+        experience: '在雪夜中漫步北村韩屋村，感受传统韩屋被白雪覆盖的静谧之美；在景福宫穿韩服拍照，体验韩国传统文化。',
+        visaInfo: '需办理韩国旅游签证，约600-900元，5-7个工作日出签',
+        durationDays: 5,
+        budget: { flight: '2,000-4,000', hotelPerNight: '500-900', foodPerDay: '200-350', transport: '50-100', activities: '300-600', total: '7,500-13,000', totalMin: 7500, totalMax: 13000 },
+        highlights: ['北村韩屋村雪夜', '景福宫韩服体验', '明洞购物美食', 'N首尔塔夜景'],
+        year: 1, yearReason: '短途入门级冬季旅行，预算友好，适合作为整段旅程的轻松开场。', recommendedMonth: '12月中旬至12月底', budgetLevel: '低', physicalIntensity: '低'
+      },
+      {
+        id: 'japan-sakura', name: '日本樱花季', country: '日本', tagline: '樱花纷飞，一期一会',
+        description: '春季在京都哲学之道或东京目黑川漫步于樱花隧道之下，体验花见文化。30岁体力正值巅峰，适合樱花季期间日均2万步的城市暴走。',
+        imageUrl: TRAVEL_IMAGES[1],
+        bestMonths: '3月下旬-4月',
+        bestMonthsReason: '樱花季是日本最具代表性的季节，东京、京都、大阪等地樱花盛开，气温温和约10-20°C，但为旅游旺季价格较高。',
+        experience: '在京都哲学之道漫步于樱花隧道之下，体验花见文化；在东京目黑川两岸观赏夜樱，感受日本人的赏樱传统。',
+        visaInfo: '需通过指定旅行社申请日本旅游签证，约400-800元',
+        durationDays: 7,
+        budget: { flight: '3,000-6,000', hotelPerNight: '500-1,000', foodPerDay: '250-400', transport: '100-200', activities: '400-800', total: '10,000-18,000', totalMin: 10000, totalMax: 18000 },
+        highlights: ['京都哲学之道樱花', '东京目黑川夜樱', '大阪城公园花见', '穿和服游古都'],
+        year: 1, yearReason: '30岁体力正值巅峰，适合樱花季期间日均2万步的城市暴走。建立日本签证记录为未来多次入境铺路。', recommendedMonth: '3月下旬至4月上旬', budgetLevel: '中等', physicalIntensity: '中高'
+      },
+      {
+        id: 'canada-maple', name: '加拿大枫红', country: '加拿大', tagline: '漫山遍野的秋日童话',
+        description: '驾车穿越被红黄橙三色枫林覆盖的枫叶大道，在阿冈昆省立公园或翠湖山庄邂逅北美最绚烂的秋日童话。',
+        imageUrl: TRAVEL_IMAGES[2],
+        bestMonths: '9月中旬-10月底',
+        bestMonthsReason: '枫叶季是加拿大最美的时节，阿冈昆省立公园和魁北克枫叶大道绝美。秋季气候凉爽舒适，非常适合自驾和户外活动。',
+        experience: '驾车穿越被红黄橙三色枫林覆盖的枫叶大道，在阿冈昆省立公园邂逅北美最绚烂的秋日童话。',
+        visaInfo: '需提前办理加拿大签证，约1000元（含生物采集）',
+        durationDays: 8,
+        budget: { flight: '4,500-10,000', hotelPerNight: '800-1,400', foodPerDay: '300-500', transport: '200-400', activities: '1,500-2,500', total: '18,000-28,000', totalMin: 18000, totalMax: 28000 },
+        highlights: ['枫叶大道自驾', '阿冈昆省立公园', '翠湖山庄', '尼亚加拉瀑布'],
+        year: 1, yearReason: '枫叶季绝美，30岁开始建立加拿大签证记录，为未来北美旅行铺路。秋季气候凉爽舒适。', recommendedMonth: '9月下旬至10月中旬', budgetLevel: '中高', physicalIntensity: '低'
+      },
+      {
+        id: 'turkey-balloon', name: '土耳其热气球', country: '土耳其', tagline: '漂浮在外星球的日出之上',
+        description: '在卡帕多奇亚的日出时分乘坐热气球，漂浮在仙女烟囱和洞穴教堂之上，仿佛置身外星球般的奇幻世界。',
+        imageUrl: TRAVEL_IMAGES[3],
+        bestMonths: '4-6月、9-10月',
+        bestMonthsReason: '春秋季是土耳其最佳旅行时间，卡帕多奇亚热气球起飞率高、气温舒适。避开夏季酷热和冬季寒冷。',
+        experience: '在卡帕多奇亚的日出时分乘坐热气球，漂浮在仙女烟囱和洞穴教堂之上，仿佛置身外星球。',
+        visaInfo: '电子签，约500元，1-3天出签，最简单',
+        durationDays: 8,
+        budget: { flight: '3,500-7,000', hotelPerNight: '500-1,000', foodPerDay: '200-400', transport: '150-300', activities: '3,000-5,000', total: '15,000-23,000', totalMin: 15000, totalMax: 23000 },
+        highlights: ['卡帕多奇亚热气球', '洞穴酒店住宿', '以弗所古城', '棉花堡温泉'],
+        year: 2, yearReason: '春秋季热气球起飞率高，31岁有一定旅行经验后可深度欣赏历史文化。电子签方便，性价比高。', recommendedMonth: '4月至5月上旬', budgetLevel: '中等', physicalIntensity: '中等'
+      },
+      {
+        id: 'norway-fjord', name: '挪威峡湾晚风', country: '挪威', tagline: '午夜阳光下的自然壮丽',
+        description: '乘坐游船穿行于被联合国教科文组织列为世界遗产的深邃峡湾之间，两岸飞瀑如练、悬崖耸立，在午夜阳光下感受北欧自然的壮丽。',
+        imageUrl: TRAVEL_IMAGES[4],
+        bestMonths: '6-8月',
+        bestMonthsReason: '夏季是挪威峡湾唯一适合游览的季节，日照长达18小时。6-8月气候温和，适合徒步和皮划艇等户外活动。',
+        experience: '乘坐游船穿行于深邃峡湾之间，两岸飞瀑如练、悬崖耸立，在午夜阳光下感受北欧自然的壮丽。',
+        visaInfo: '需办理申根签证，约800-950元',
+        durationDays: 10,
+        budget: { flight: '4,000-8,500', hotelPerNight: '1,000-1,600', foodPerDay: '400-650', transport: '300-500', activities: '2,500-4,500', total: '25,000-38,000', totalMin: 25000, totalMax: 38000 },
+        highlights: ['松恩峡湾游船', '布道石徒步', '午夜太阳', '卑尔根老城'],
+        year: 2, yearReason: '夏季峡湾季节，日照18小时。31岁体力充沛，可胜任峡湾徒步和皮划艇。利用申根签证探索北欧。', recommendedMonth: '6月下旬至7月中旬', budgetLevel: '高', physicalIntensity: '中等'
+      },
+      {
+        id: 'london-christmas', name: '伦敦圣诞节', country: '英国', tagline: '最经典的英伦圣诞',
+        description: '漫步于牛津街和摄政街欣赏世界闻名的圣诞灯饰；在海德公园冬季Wonderland体验滑冰、圣诞集市和游乐设施。',
+        imageUrl: TRAVEL_IMAGES[5],
+        bestMonths: '12月',
+        bestMonthsReason: '12月的伦敦被圣诞灯饰和装饰点亮，海德公园冬季Wonderland、牛津街和摄政街的圣诞灯饰营造出浓厚的节日氛围。',
+        experience: '漫步于牛津街和摄政街欣赏世界闻名的圣诞灯饰，在海德公园冬季Wonderland体验滑冰和圣诞集市。',
+        visaInfo: '需申请英国Standard Visitor Visa，约1200-4300元',
+        durationDays: 5,
+        budget: { flight: '4,500-8,000', hotelPerNight: '800-1,500', foodPerDay: '300-500', transport: '50-100', activities: '400-800', total: '14,000-24,000', totalMin: 14000, totalMax: 24000 },
+        highlights: ['牛津街圣诞灯饰', '海德公园Winter Wonderland', '西区音乐剧', '圣诞颂歌音乐会'],
+        year: 2, yearReason: '伦敦圣诞市场是欧洲最经典的圣诞体验，低强度城市漫步即可感受浓厚节日氛围。', recommendedMonth: '12月中旬', budgetLevel: '中高', physicalIntensity: '低'
+      },
+      {
+        id: 'switzerland-winter', name: '瑞士冬夜', country: '瑞士', tagline: '阿尔卑斯山中的童话世界',
+        description: '乘坐少女峰铁路登上"欧洲之巅"，在海拔3454米欣赏阿莱奇冰川的壮丽景色；在采尔马特仰望马特洪峰的雄伟轮廓。',
+        imageUrl: TRAVEL_IMAGES[6],
+        bestMonths: '12月-2月',
+        bestMonthsReason: '瑞士阿尔卑斯山区冬季被皑皑白雪覆盖，气温约-5°C至5°C。12月圣诞期间各小镇装饰华丽，1-2月雪况最佳。',
+        experience: '乘坐少女峰铁路登上欧洲之巅，在采尔马特仰望马特洪峰的雄伟轮廓，体验世界级滑雪场。',
+        visaInfo: '申根签证，约800-950元',
+        durationDays: 7,
+        budget: { flight: '5,000-8,000', hotelPerNight: '1,000-1,500', foodPerDay: '300-500', transport: '150-250', activities: '500-1,000', total: '16,000-26,000', totalMin: 16000, totalMax: 26000 },
+        highlights: ['少女峰铁路', '采尔马特滑雪', '马特洪峰日出', '卢塞恩湖畔小镇'],
+        year: 3, yearReason: '32岁体力仍佳，适合滑雪和阿尔卑斯山区户外活动。瑞士冬夜童话般的雪景和温泉是绝佳体验。', recommendedMonth: '1月下旬至2月上旬', budgetLevel: '高', physicalIntensity: '中等'
+      },
+      {
+        id: 'japan-fireworks', name: '日本花火大会', country: '日本', tagline: '浴衣、烟花、夏夜的梦',
+        description: '参加东京隅田川、大阪淀川或长崎等地的花火大会，穿着传统浴衣在夜空中观赏万发烟花绽放，搭配庙会小吃和捞金鱼等夏日祭典活动。',
+        imageUrl: TRAVEL_IMAGES[7],
+        bestMonths: '7-8月',
+        bestMonthsReason: '花火大会集中在7-8月，全国各地举办数百场，穿着浴衣观赏烟花是独特的夏日体验。',
+        experience: '穿着传统浴衣参加花火大会，在夜空中观赏万发烟花绽放，搭配庙会小吃和夏日祭典活动。',
+        visaInfo: '已有日本签证记录，二次入境更顺畅',
+        durationDays: 6,
+        budget: { flight: '3,000-5,500', hotelPerNight: '500-900', foodPerDay: '250-400', transport: '100-200', activities: '300-600', total: '8,500-14,000', totalMin: 8500, totalMax: 14000 },
+        highlights: ['隅田川花火大会', '京都祗园祭', '浴衣体验', '夏日祭典小吃'],
+        year: 3, yearReason: '已有日本签证记录，花火是日本最具诗意的人文体验。夏季花火与京都祗园祭可组合体验。', recommendedMonth: '7月下旬至8月上旬', budgetLevel: '中等', physicalIntensity: '中等'
+      },
+      {
+        id: 'maldives-sea', name: '马尔代夫的海', country: '马尔代夫', tagline: '地球上最接近天堂的地方',
+        description: '在蒂芙尼蓝的印度洋海水中醒来，水上屋下珊瑚礁与热带鱼共舞，这是地球上最接近天堂的度假体验。',
+        imageUrl: TRAVEL_IMAGES[8],
+        bestMonths: '11月-次年4月',
+        bestMonthsReason: '旱季刚开始，天气晴好且价格还未到圣诞旺季最高。11月和5月性价比最高。',
+        experience: '在蒂芙尼蓝的印度洋海水中醒来，水上屋下珊瑚礁与热带鱼共舞，体验最接近天堂的度假。',
+        visaInfo: '免签30天，最简单',
+        durationDays: 6,
+        budget: { flight: '4,000-8,000', hotelPerNight: '1,500-3,500', foodPerDay: '300-600', transport: '800-2,500', activities: '2,000-4,000', total: '22,000-40,000', totalMin: 22000, totalMax: 40000 },
+        highlights: ['水上屋住宿', '珊瑚礁浮潜', '日落巡航', '私人沙滩晚餐'],
+        year: 3, yearReason: '用马尔代夫的放松假期犒劳自己。低强度纯度假，为后续高强度旅行储备体力。免签便利。', recommendedMonth: '11月上旬', budgetLevel: '高', physicalIntensity: '低'
+      },
+      {
+        id: 'iceland-aurora', name: '冰岛极光', country: '冰岛', tagline: '追逐北极光的冰与火之歌',
+        description: '在雷克雅未克郊外的无光害区域仰望舞动的北极光，感受大自然的神奇光芒；泡在世界闻名的蓝湖温泉中，在冰天雪地中享受温暖的矿物质水。',
+        imageUrl: TRAVEL_IMAGES[9],
+        bestMonths: '9月-次年3月',
+        bestMonthsReason: '11月至2月是极光最活跃的时期，黑夜越长极光观测机会越多。气温约-2°C至5°C，受墨西哥湾暖流影响并不极端寒冷。',
+        experience: '在雷克雅未克郊外仰望舞动的北极光，泡在冰天雪地中的蓝湖温泉，探索冬季限定的蓝冰洞。',
+        visaInfo: '申根签证，约800-950元',
+        durationDays: 8,
+        budget: { flight: '6,000-10,000', hotelPerNight: '800-1,300', foodPerDay: '300-500', transport: '200-400', activities: '800-1,500', total: '18,000-30,000', totalMin: 18000, totalMax: 30000 },
+        highlights: ['北极光观测', '蓝湖温泉', '蓝冰洞探险', '黄金圈游览'],
+        year: 4, yearReason: '33岁体力仍然出色，能应对极光追逐的熬夜和冬季户外严寒。1-2月是极光最活跃季节。', recommendedMonth: '1月至2月', budgetLevel: '高', physicalIntensity: '高'
+      },
+      {
+        id: 'california-sunset', name: '加州落日', country: '美国', tagline: '一号公路上的自由与浪漫',
+        description: '在1号公路上追逐太平洋沿岸的壮丽落日，从金门大桥到圣莫尼卡海滩，感受加州特有的自由与浪漫。',
+        imageUrl: TRAVEL_IMAGES[10],
+        bestMonths: '4-6月、9-10月',
+        bestMonthsReason: '一号公路自驾的最佳季节，气候温和、海雾较少。春秋季避开夏季拥堵和冬季雨季。',
+        experience: '在1号公路上追逐太平洋沿岸的壮丽落日，从金门大桥到圣莫尼卡海滩，感受加州的自由与浪漫。',
+        visaInfo: '需提前办理美国B1/B2签证，约1,350元',
+        durationDays: 10,
+        budget: { flight: '3,500-8,000', hotelPerNight: '1,000-1,600', foodPerDay: '400-650', transport: '200-400', activities: '1,500-3,000', total: '20,000-32,000', totalMin: 20000, totalMax: 32000 },
+        highlights: ['一号公路自驾', '金门大桥日落', '圣莫尼卡海滩', '优胜美地国家公园'],
+        year: 4, yearReason: '经过3年旅行积累，33岁有了丰富经验来应对长途自驾。美签需提前办理，良好出入境记录有助于面签。', recommendedMonth: '5月下旬至6月上旬', budgetLevel: '中等', physicalIntensity: '中等'
+      },
+      {
+        id: 'italy-summer', name: '意大利的夏天', country: '意大利', tagline: '穿越时光的艺术与美食盛宴',
+        description: '从罗马千年古迹到威尼斯水巷碧波，再到托斯卡纳金色田野，意大利是一场穿越时光的艺术与美食盛宴。',
+        imageUrl: TRAVEL_IMAGES[11],
+        bestMonths: '4-6月、9-10月',
+        bestMonthsReason: '5月最佳，气候宜人且避开8月暑期人潮。春秋季适合城市漫步和乡村酒庄之旅。',
+        experience: '从罗马千年古迹到威尼斯水巷碧波，再到托斯卡纳金色田野，感受穿越时光的艺术与美食盛宴。',
+        visaInfo: '申根签证，约800-950元',
+        durationDays: 10,
+        budget: { flight: '4,000-8,000', hotelPerNight: '800-1,300', foodPerDay: '300-550', transport: '150-350', activities: '2,000-3,500', total: '18,000-28,000', totalMin: 18000, totalMax: 28000 },
+        highlights: ['罗马斗兽场', '威尼斯水城', '托斯卡纳酒庄', '阿马尔菲海岸'],
+        year: 5, yearReason: '34岁更加成熟，可以深度品味意大利的历史文化和美食美酒。夏季是意大利最热闹的季节。', recommendedMonth: '6月至7月', budgetLevel: '中等', physicalIntensity: '中等'
+      },
+      {
+        id: 'denmark-winter', name: '丹麦的冬天', country: '丹麦', tagline: 'Hygge文化的温暖收官',
+        description: '漫步于新港运河区，欣赏色彩斑斓的联排房屋和停泊的帆船被冬日薄雾笼罩；在蒂沃利游乐园体验北欧最大的圣诞集市和灯光秀。',
+        imageUrl: TRAVEL_IMAGES[12],
+        bestMonths: '11月-2月',
+        bestMonthsReason: '哥本哈根冬季充满北欧童话般的氛围。11月底起圣诞集市和新港运河区的圣诞装饰点亮全城。',
+        experience: '漫步于新港运河区，在蒂沃利游乐园体验北欧最大的圣诞集市，感受丹麦hygge文化的温暖。',
+        visaInfo: '申根签证，约800-950元',
+        durationDays: 5,
+        budget: { flight: '5,000-8,000', hotelPerNight: '700-1,200', foodPerDay: '300-450', transport: '60-120', activities: '300-600', total: '13,000-21,000', totalMin: 13000, totalMax: 21000 },
+        highlights: ['新港运河区', '蒂沃利圣诞集市', '小美人鱼雕像', '热红酒与糕点'],
+        year: 5, yearReason: '丹麦hygge文化的冬季体验是收官之旅的完美选择。低强度、适中预算，为5年旅行画上圆满句号。', recommendedMonth: '11月下旬至12月上旬', budgetLevel: '中等', physicalIntensity: '低'
+      }
+    ];
+
+    // ========== HOOKS ==========
+    function useReveal() {
+      const ref = useRef(null);
+      useEffect(() => {
+        const el = ref.current;
+        if (!el) return;
+        const observer = new IntersectionObserver(([entry]) => {
+          if (entry.isIntersecting) {
+            el.classList.add('visible');
+            observer.unobserve(el);
+          }
+        }, { threshold: 0.15 });
+        observer.observe(el);
+        return () => observer.disconnect();
+      }, []);
+      return ref;
+    }
+
+    // ========== COMPONENTS ==========
+
+    // --- Header ---
+    function Header() {
+      const totalMin = destinations.reduce((s, d) => s + d.budget.totalMin, 0);
+      const totalMax = destinations.reduce((s, d) => s + d.budget.totalMax, 0);
+
+      return (
+        <header className="relative min-h-screen flex items-center justify-center overflow-hidden">
+          <div className="absolute inset-0">
+            <img src={TRAVEL_IMAGES[13]} alt="" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-b from-bg-primary/80 via-bg-primary/60 to-bg-primary" />
+            <div className="absolute inset-0 bg-gradient-to-r from-bg-primary/70 via-transparent to-bg-primary/70" />
+          </div>
+
+          {/* Floating particles */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {Array.from({ length: 20 }).map((_, i) => (
+              <div key={i} className="absolute w-1 h-1 bg-accent-cyan/40 rounded-full float-anim"
+                style={{ left: `${(i * 37 + 13) % 100}%`, top: `${(i * 53 + 7) % 100}%`, animationDelay: `${i * 0.4}s`, animationDuration: `${5 + i % 4}s` }} />
+            ))}
+          </div>
+
+          <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
+            <span className="inline-block text-accent-cyan text-sm md:text-base tracking-[0.3em] uppercase mb-4 animate-pulse">5-10 Year Travel Plan</span>
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
+              <span className="gradient-text">人生旅行清单</span>
+            </h1>
+            <p className="text-lg md:text-xl text-text-secondary mb-12 max-w-2xl mx-auto leading-relaxed">
+              12个梦想目的地，5年精心规划，从雪夜到极光，从樱花到枫叶，<br className="hidden md:block" />
+              让每一次出发都成为人生中最美的回忆
+            </p>
+
+            <div className="flex flex-wrap justify-center gap-4 md:gap-6">
+              <div className="glass rounded-2xl px-6 py-4 flex items-center gap-3">
+                <svg className="w-5 h-5 text-accent-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                <div className="text-left">
+                  <div className="text-2xl font-bold text-text-primary">12</div>
+                  <div className="text-xs text-text-muted">个目的地</div>
+                </div>
+              </div>
+              <div className="glass rounded-2xl px-6 py-4 flex items-center gap-3">
+                <svg className="w-5 h-5 text-accent-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                <div className="text-left">
+                  <div className="text-2xl font-bold text-text-primary">5年</div>
+                  <div className="text-xs text-text-muted">完成周期</div>
+                </div>
+              </div>
+              <div className="glass rounded-2xl px-6 py-4 flex items-center gap-3">
+                <svg className="w-5 h-5 text-accent-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+                <div className="text-left">
+                  <div className="text-2xl font-bold text-text-primary">{(totalMin / 10000).toFixed(0)}-{(totalMax / 10000).toFixed(0)}万</div>
+                  <div className="text-xs text-text-muted">总预算范围</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Scroll indicator */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
+            <span className="text-text-muted text-xs tracking-wider">向下滚动</span>
+            <svg className="w-5 h-5 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7" /></svg>
+          </div>
+        </header>
+      );
+    }
+
+    // --- Destination Card ---
+    function DestinationCard({ destination, index }) {
+      const ref = useReveal();
+      const isEven = index % 2 === 0;
+
+      return (
+        <div ref={ref} className={`reveal relative flex flex-col lg:flex-row gap-6 lg:gap-12 items-center ${isEven ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}>
+          {/* Image Section */}
+          <div className="w-full lg:w-1/2 relative group">
+            <div className="relative overflow-hidden rounded-2xl aspect-[4/3] transition-transform duration-400 group-hover:scale-[1.02]">
+              <img src={destination.imageUrl} alt={destination.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              <div className="absolute inset-0 bg-gradient-to-t from-bg-primary/80 via-transparent to-transparent" />
+              <div className="absolute top-4 left-4 glass rounded-full px-4 py-1.5 flex items-center gap-2">
+                <svg className="w-4 h-4 text-accent-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <span className="text-sm font-medium">第 {destination.year} 年</span>
+              </div>
+              <div className="absolute top-4 right-4 glass rounded-full px-3 py-1.5 flex items-center gap-1.5">
+                <svg className="w-3.5 h-3.5 text-accent-green" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                <span className="text-xs font-medium">{destination.budgetLevel}预算</span>
+              </div>
+              <div className="absolute bottom-4 left-4 flex items-center gap-2">
+                <svg className="w-4 h-4 text-accent-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /></svg>
+                <span className="text-sm text-text-secondary">{destination.country}</span>
+              </div>
+            </div>
+            <div className={`absolute -z-10 w-full h-full rounded-2xl bg-gradient-to-br from-accent-cyan/10 to-accent-purple/10 ${isEven ? '-bottom-3 -right-3' : '-bottom-3 -left-3'}`} />
+          </div>
+
+          {/* Content Section */}
+          <div className="w-full lg:w-1/2 space-y-5">
+            <div>
+              <h3 className="text-3xl md:text-4xl font-bold mb-1" style={{ fontFamily: 'var(--font-display)' }}>{destination.name}</h3>
+              <p className="text-accent-purple text-sm mb-3">{destination.tagline}</p>
+              <p className="text-text-secondary leading-relaxed text-base md:text-lg">{destination.description}</p>
+            </div>
+
+            {/* Best Time */}
+            <div className="bg-bg-card rounded-xl p-4 border border-border">
+              <div className="flex items-center gap-2 mb-2">
+                <svg className="w-4 h-4 text-accent-orange" fill="currentColor" viewBox="0 0 24 24"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                <span className="text-sm font-medium text-text-primary">最佳时间</span>
+                <span className="text-sm text-accent-cyan ml-auto">{destination.bestMonths}</span>
+              </div>
+              <p className="text-sm text-text-secondary leading-relaxed">{destination.bestMonthsReason}</p>
+            </div>
+
+            {/* Experience */}
+            <div className="bg-bg-card/50 rounded-xl p-4 border border-border/50">
+              <div className="flex items-center gap-2 mb-2">
+                <svg className="w-4 h-4 text-accent-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" /></svg>
+                <span className="text-sm font-medium text-text-primary">核心体验</span>
+              </div>
+              <p className="text-sm text-text-secondary leading-relaxed">{destination.experience}</p>
+            </div>
+
+            {/* Budget Breakdown */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                { icon: 'plane', label: '往返机票', value: destination.budget.flight },
+                { icon: 'hotel', label: '住宿/晚', value: destination.budget.hotelPerNight },
+                { icon: 'utensils', label: '餐饮/天', value: destination.budget.foodPerDay },
+                { icon: 'bus', label: '当地交通', value: destination.budget.transport },
+              ].map(item => (
+                <div key={item.label} className="bg-bg-card rounded-lg p-3 border border-border text-center">
+                  <div className="text-xs text-text-muted mb-1">{item.label}</div>
+                  <div className="text-sm font-semibold">¥{item.value}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Tags */}
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              <div className="glass rounded-full px-4 py-2 flex items-center gap-2">
+                <svg className="w-4 h-4 text-accent-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+                <span className="text-sm font-semibold">总预算 ¥{destination.budget.total}</span>
+              </div>
+              <div className="glass rounded-full px-4 py-2 flex items-center gap-2">
+                <svg className="w-4 h-4 text-accent-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <span className="text-sm">{destination.durationDays} 天</span>
+              </div>
+              <div className="glass rounded-full px-4 py-2 flex items-center gap-2">
+                <svg className="w-4 h-4 text-accent-green" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                <span className="text-sm">{destination.physicalIntensity}强度</span>
+              </div>
+            </div>
+
+            <p className="text-xs text-text-muted pt-1">签证：{destination.visaInfo}</p>
+          </div>
+        </div>
+      );
+    }
+
+    // --- Timeline ---
+    function Timeline() {
+      const ref = useReveal();
+      const byYear = {};
+      destinations.forEach(d => { if (!byYear[d.year]) byYear[d.year] = []; byYear[d.year].push(d); });
+      const years = Object.keys(byYear).map(Number).sort();
+
+      return (
+        <section className="py-20 md:py-28">
+          <div ref={ref} className="reveal text-center mb-16 max-w-6xl mx-auto px-4">
+            <span className="text-accent-cyan text-sm tracking-[0.2em] uppercase">5-Year Timeline</span>
+            <h2 className="text-3xl md:text-5xl font-bold mt-2 mb-4" style={{ fontFamily: 'var(--font-display)' }}>
+              五年<span className="gradient-text">时间线</span>
+            </h2>
+            <p className="text-text-secondary max-w-xl mx-auto">
+              精心规划的每一程，从初入旅程到圆满收官，让脚步与时光同步
+            </p>
+          </div>
+
+          <div className="max-w-5xl mx-auto px-4">
+            {years.map((year, yearIndex) => {
+              const yearBudgetMin = byYear[year].reduce((s, d) => s + d.budget.totalMin, 0);
+              const yearBudgetMax = byYear[year].reduce((s, d) => s + d.budget.totalMax, 0);
+              const yearDays = byYear[year].reduce((s, d) => s + d.durationDays, 0);
+
+              return (
+                <div key={year} className="reveal relative mb-12 last:mb-0" style={{ transitionDelay: `${yearIndex * 0.15}s` }}>
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent-cyan/20 to-accent-purple/20 border border-accent-cyan/30 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-6 h-6 text-accent-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    </div>
+                    <div>
+                      <h3 className="text-2xl md:text-3xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>第 {year} 年</h3>
+                      <p className="text-sm text-text-muted">
+                        预算范围：¥{(yearBudgetMin / 10000).toFixed(1)}-{(yearBudgetMax / 10000).toFixed(1)}万
+                        <span className="mx-2">·</span>{byYear[year].length} 次旅行
+                        <span className="mx-2">·</span>共 {yearDays} 天
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ml-[4.5rem]">
+                    {byYear[year].map((dest, destIndex) => (
+                      <div key={dest.id} className="bg-bg-card rounded-xl border border-border hover:border-accent-cyan/40 transition-all group overflow-hidden" style={{ transitionDelay: `${destIndex * 0.1}s` }}>
+                        <div className="relative h-32 overflow-hidden">
+                          <img src={dest.imageUrl} alt={dest.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-bg-card via-bg-card/50 to-transparent" />
+                          <div className="absolute bottom-2 left-3">
+                            <span className="text-xs text-accent-cyan font-medium">{dest.recommendedMonth}</span>
+                          </div>
+                        </div>
+                        <div className="p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <svg className="w-3.5 h-3.5 text-accent-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /></svg>
+                            <span className="text-sm font-semibold text-text-primary">{dest.name}</span>
+                          </div>
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            <span className="text-xs bg-bg-secondary px-2 py-0.5 rounded-full text-text-muted">{dest.durationDays}天</span>
+                            <span className="text-xs bg-bg-secondary px-2 py-0.5 rounded-full text-text-muted">{dest.budgetLevel}预算</span>
+                            <span className="text-xs bg-bg-secondary px-2 py-0.5 rounded-full text-text-muted">{dest.physicalIntensity}强度</span>
+                          </div>
+                          <p className="text-xs text-text-secondary leading-relaxed">{dest.yearReason}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {yearIndex < years.length - 1 && (
+                    <div className="ml-7 mt-8 w-px h-8 bg-gradient-to-b from-border to-transparent" />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Strategy */}
+          <div ref={ref} className="reveal max-w-4xl mx-auto px-4 mt-16">
+            <div className="glass rounded-2xl p-6 md:p-8 border border-border">
+              <div className="flex items-center gap-3 mb-6">
+                <svg className="w-5 h-5 text-accent-orange" fill="currentColor" viewBox="0 0 24 24"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                <h4 className="text-lg font-semibold">规划策略</h4>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+                <div>
+                  <h5 className="text-accent-cyan font-medium mb-2">季节错峰</h5>
+                  <p className="text-text-secondary leading-relaxed">5个冬季目的地均匀分布在5年，每年仅1次冬季旅行。夏季目的地分散在不同年份，春秋季平衡填充。</p>
+                </div>
+                <div>
+                  <h5 className="text-accent-purple font-medium mb-2">体力曲线</h5>
+                  <p className="text-text-secondary leading-relaxed">30-31岁以中高强度为主（樱花暴走、峡湾徒步），32-33岁达到巅峰（滑雪、极光追逐），34岁转向文化深度游。</p>
+                </div>
+                <div>
+                  <h5 className="text-accent-pink font-medium mb-2">签证规划</h5>
+                  <p className="text-text-secondary leading-relaxed">第1年建立日韩加签证记录，第2年申根+英签，第3年申根续签，第4年挑战美签，第5年申根覆盖两国。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // --- Budget Chart ---
+    function BudgetChart() {
+      const ref = useReveal();
+      const sorted = [...destinations].sort((a, b) => b.budget.totalMax - a.budget.totalMax);
+      const maxBudget = sorted[0]?.budget.totalMax || 40000;
+
+      const totalMin = destinations.reduce((s, d) => s + d.budget.totalMin, 0);
+      const totalMax = destinations.reduce((s, d) => s + d.budget.totalMax, 0);
+      const totalDays = destinations.reduce((s, d) => s + d.durationDays, 0);
+
+      return (
+        <section className="py-20 md:py-28">
+          <div ref={ref} className="reveal text-center mb-16 max-w-6xl mx-auto px-4">
+            <span className="text-accent-purple text-sm tracking-[0.2em] uppercase">Budget</span>
+            <h2 className="text-3xl md:text-5xl font-bold mt-2 mb-4" style={{ fontFamily: 'var(--font-display)' }}>
+              预算<span className="gradient-text">对比</span>
+            </h2>
+            <p className="text-text-secondary max-w-xl mx-auto">
+              12个目的地的预算一览，合理规划每一次出发
+            </p>
+          </div>
+
+          <div className="max-w-4xl mx-auto px-4">
+            <div className="space-y-4">
+              {sorted.map((dest, index) => {
+                const barWidth = (dest.budget.totalMax / maxBudget) * 100;
+                return (
+                  <div key={dest.id} className="reveal flex items-center gap-3 md:gap-4" style={{ transitionDelay: `${index * 0.06}s` }}>
+                    <div className="w-24 md:w-32 text-right flex-shrink-0">
+                      <span className="text-sm font-medium text-text-primary">{dest.name}</span>
+                    </div>
+                    <div className="flex-1 relative h-10 bg-bg-card rounded-lg overflow-hidden border border-border hover:border-border-light transition-colors">
+                      <div className="absolute top-1/2 -translate-y-1/2 h-6 rounded-md bg-gradient-to-r from-accent-cyan/60 to-accent-purple/60 bar-grow" style={{ '--bar-width': `${barWidth}%` }} />
+                      <div className="absolute inset-0 flex items-center px-3">
+                        <span className="text-xs font-medium text-text-primary drop-shadow-md">¥{(dest.budget.totalMin / 10000).toFixed(1)}-{(dest.budget.totalMax / 10000).toFixed(1)}万</span>
+                      </div>
+                    </div>
+                    <div className="w-12 text-center flex-shrink-0">
+                      <span className="text-xs text-text-muted">{dest.durationDays}天</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Legend */}
+            <div ref={ref} className="reveal flex flex-wrap justify-center gap-4 mt-10">
+              {[
+                { label: '往返机票', color: '#22d3ee' },
+                { label: '住宿', color: '#a78bfa' },
+                { label: '餐饮', color: '#fb923c' },
+                { label: '当地交通', color: '#34d399' },
+                { label: '活动', color: '#f472b6' },
+              ].map(item => (
+                <div key={item.label} className="flex items-center gap-2 text-sm text-text-secondary">
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                  <span>{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Summary Cards */}
+          <div className="max-w-5xl mx-auto px-4 mt-16">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { label: '最低总预算', value: `¥${(totalMin / 10000).toFixed(1)}万`, color: 'text-accent-cyan', desc: '经济出行' },
+                { label: '最高总预算', value: `¥${(totalMax / 10000).toFixed(1)}万`, color: 'text-accent-purple', desc: '舒适出行' },
+                { label: '总计天数', value: `${totalDays}天`, color: 'text-accent-green', desc: '12段旅程' },
+                { label: '最省目的地', value: '首尔雪夜', color: 'text-accent-orange', desc: '¥0.75-1.3万' },
+              ].map((item, i) => (
+                <div key={item.label} className="reveal bg-bg-card rounded-xl p-5 border border-border text-center" style={{ transitionDelay: `${i * 0.08}s` }}>
+                  <div className="text-xs text-text-muted mb-1">{item.label}</div>
+                  <div className={`text-xl md:text-2xl font-bold ${item.color} mb-1`}>{item.value}</div>
+                  <div className="text-xs text-text-muted">{item.desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // --- CTA Section ---
+    function CTASection() {
+      return (
+        <section className="py-20 md:py-28 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-30">
+            <img src={TRAVEL_IMAGES[14]} alt="" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-b from-bg-primary via-bg-primary/90 to-bg-primary" />
+          </div>
+          <div className="reveal relative z-10 max-w-3xl mx-auto px-4 text-center">
+            <h2 className="text-3xl md:text-5xl font-bold mb-4" style={{ fontFamily: 'var(--font-display)' }}>
+              开始你的<span className="gradient-text">旅程</span>
+            </h2>
+            <p className="text-text-secondary mb-8 max-w-xl mx-auto">
+              人生不过数十载，而世界如此辽阔。用5年时间，完成12个梦想，让每一次出发都成为值得珍藏一生的回忆。
+            </p>
+            <div className="flex flex-wrap justify-center gap-4 text-sm text-text-muted">
+              <span className="flex items-center gap-1.5">
+                <svg className="w-4 h-4 text-accent-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+                12个目的地
+              </span>
+              <span className="w-1 h-1 rounded-full bg-text-muted" />
+              <span className="flex items-center gap-1.5">
+                <svg className="w-4 h-4 text-accent-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /></svg>
+                5年规划
+              </span>
+              <span className="w-1 h-1 rounded-full bg-text-muted" />
+              <span className="flex items-center gap-1.5">
+                <svg className="w-4 h-4 text-accent-pink" fill="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                一生回忆
+              </span>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // --- Footer ---
+    function Footer() {
+      const totalMin = destinations.reduce((s, d) => s + d.budget.totalMin, 0);
+      const totalMax = destinations.reduce((s, d) => s + d.budget.totalMax, 0);
+      const totalDays = destinations.reduce((s, d) => s + d.durationDays, 0);
+
+      return (
+        <footer className="py-16 border-t border-border">
+          <div className="max-w-6xl mx-auto px-4">
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <svg className="w-6 h-6 text-accent-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <span className="text-2xl font-bold gradient-text" style={{ fontFamily: 'var(--font-display)' }}>Wanderlust</span>
+              </div>
+              <p className="text-text-secondary text-sm mb-6">用心规划每一次旅行，让回忆成为永恒</p>
+              <div className="flex items-center justify-center gap-6 text-text-muted text-sm mb-8 flex-wrap">
+                <span className="flex items-center gap-1.5">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+                  12个目的地
+                </span>
+                <span className="w-1 h-1 rounded-full bg-text-muted" />
+                <span className="flex items-center gap-1.5">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /></svg>
+                  {totalDays}天总行程
+                </span>
+                <span className="w-1 h-1 rounded-full bg-text-muted" />
+                <span>¥{(totalMin / 10000).toFixed(0)}-{(totalMax / 10000).toFixed(0)}万总预算</span>
+              </div>
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <div className="w-12 h-px bg-gradient-to-r from-transparent to-accent-cyan/50" />
+                <div className="w-2 h-2 rounded-full bg-accent-cyan/60" />
+                <div className="w-12 h-px bg-gradient-to-l from-transparent to-accent-purple/50" />
+              </div>
+              <p className="text-text-muted text-xs">Wanderlust Travel Plan &copy; 2025. All dreams reserved.</p>
+            </div>
+          </div>
+        </footer>
+      );
+    }
+
+    // --- App ---
+    function App() {
+      return (
+        <div className="min-h-screen bg-bg-primary text-text-primary overflow-x-hidden">
+          <Header />
+
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+          </div>
+
+          {/* Destinations */}
+          <section className="py-20 md:py-28">
+            <div className="max-w-6xl mx-auto px-4">
+              <div className="reveal text-center mb-16 md:mb-20">
+                <span className="text-accent-purple text-sm tracking-[0.2em] uppercase">12 Destinations</span>
+                <h2 className="text-3xl md:text-5xl font-bold mt-2 mb-4" style={{ fontFamily: 'var(--font-display)' }}>
+                  梦想<span className="gradient-text">目的地</span>
+                </h2>
+                <p className="text-text-secondary max-w-xl mx-auto">
+                  从首尔的雪夜到冰岛的极光，从日本的樱花到加拿大的枫红，每一处都是人生必去的风景
+                </p>
+              </div>
+
+              <div className="space-y-24 md:space-y-32">
+                {destinations.map((dest, index) => (
+                  <DestinationCard key={dest.id} destination={dest} index={index} />
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+          </div>
+
+          <Timeline />
+
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+          </div>
+
+          <BudgetChart />
+
+          <CTASection />
+
+          <Footer />
+        </div>
+      );
+    }
+
+    // ========== MOUNT ==========
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+
+    // Intersection Observer for reveal animations
+    document.addEventListener('DOMContentLoaded', () => {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+
+      document.querySelectorAll('.reveal, .bar-grow').forEach(el => observer.observe(el));
+    });
+  </script>
+</body>
+</html>
